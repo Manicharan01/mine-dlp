@@ -19,7 +19,7 @@ fn main() {
     let output = Command::new("yt-dlp")
         .arg("-k") // Keep video files
         .arg("-P")
-        .arg("~/Videos/") // Output directory
+        .arg("~/Videos/YouTube") // Output directory
         .arg("-o")
         .arg("%(title)s_%(vcodec)s_%(dynamic_range)s_%(format)s_%(resolution)s.%(ext)s") // Output template
         .arg("--cookies-from-browser")
@@ -37,4 +37,3 @@ fn main() {
         eprintln!("Error:\n{}", stderr);
     }
 }
-
