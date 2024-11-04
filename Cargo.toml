@@ -1,6 +1,6 @@
 [package]
 name = "mine-dlp"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2021"
 
 description = "A yt-dlp wrapper for downloading YouTube videos from command line"
@@ -12,3 +12,4 @@ name = "mine-dlp"
 path = "src/main.rs"
 
 [dependencies]
+dirs = "5.0.1"

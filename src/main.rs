@@ -2,11 +2,22 @@ use std::fs::File;
 use std::io::{self, Write};
 use std::process::Command;
 use std::path::Path;
+use dirs;
 
 fn main() {
+    let home_dir = match dirs::home_dir() {
+        Some(path) => path,
+        None => {
+            eprintln!("Failed to get home directory");
+            return;
+        }
+    };
+
+    let file_path = home_dir.join(".mine-dlp");
+
     let mut downloads_folder_path: String = String::new();
     let mut browser_for_cookies: String = String::new();
-    if !Path::new("C:\\Users\\Manicharan Kollipara\\.mine-dlp").exists(){
+    if !Path::new(&file_path).exists(){
         print!("Enter the folder path where the downloaded files should be stored: ");
         io::stdout().flush().expect("Failed to flush stdout");
         io::stdin().read_line(&mut downloads_folder_path).expect("Failed to read line");
@@ -24,7 +35,7 @@ fn main() {
             Err(e) => eprintln!("Error: {}", e),
         }
     }else {
-        let path = Path::new("C:\\Users\\Manicharan Kollipara\\.mine-dlp");
+        let path = Path::new(&file_path);
         let contents = std::fs::read_to_string(&path).expect("Error reading file");
 
         let confs: Vec<&str> = contents.split("\n").collect();
@@ -76,7 +87,15 @@ fn main() {
 }
 
 pub fn write_to_file(browser: &str, downloads: &str) -> std::io::Result<()> {
-    let path = Path::new("C:\\Users\\Manicharan Kollipara\\.mine-dlp");
+    let home_path = match dirs::home_dir() {
+        Some(path) => path,
+        None => {
+            eprintln!("Failed to get home directory");
+            return Err(std::io::Error::new(std::io::ErrorKind::Other, "Failed to get home directory"));
+        }
+    };
+    let file_path = home_path.join(".mine-dlp");
+    let path = Path::new(&file_path);
     let mut file = File::create(&path)?;
     let contents = format!("{}\n{}", browser, downloads);
     writeln!(file, "{}", contents)?;
