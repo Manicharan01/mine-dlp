@@ -3,4 +3,12 @@ name = "mine-dlp"
 version = "0.2.1"
 edition = "2021"
 
+description = "A yt-dlp wrapper for downloading YouTube videos from command line"
+license = "MIT"
+repository = "https://github.com/Manicharan01/mine-dlp"
+
+[[bin]]
+name = "mine-dlp"
+path = "src/main.rs"
+
 [dependencies]
