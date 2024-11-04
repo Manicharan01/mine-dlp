@@ -37,8 +37,6 @@ fn main() {
                 browser_for_cookies = key_val[1].to_string();
             }
         }
-
-        print!("{:?} {:?}", downloads_folder_path, browser_for_cookies);
     }
 
     // Prompt the user for the video link
