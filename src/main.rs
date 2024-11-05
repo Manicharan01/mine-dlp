@@ -71,7 +71,7 @@ fn main() {
         .arg("-o")
         .arg("%(title)s_%(vcodec)s_%(dynamic_range)s_%(format)s_%(resolution)s.%(ext)s") // Output template
         .arg("--cookies-from-browser")
-        .arg(browser_for_cookies) // Use cookies from the Chromium browser
+        .arg(browser_for_cookies.trim()) // Use cookies from the Chromium browser
         .arg(video_link) // URL to download
         .output() // Execute the command
         .expect("Failed to execute yt-dlp");
