@@ -19,3 +19,7 @@ browser="name of the browser in which youtube is logged in, quotes are not neede
 downloads=/path/to/save/the/audio or video/
 ```
 If you do not want to go through hassel, you can just execute it and give details for the first when it asked.
+
+## Issues
+
+If there is a issue you can open a PR in GitHub, attaching a screenshot of the issue is appreciated
