@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::{self, Write};
-use std::process::Command;
+use std::process::{Command, Output};
 use std::path::Path;
 use dirs;
 
@@ -39,10 +39,7 @@ fn main() {
         let contents = std::fs::read_to_string(&path).expect("Error reading file");
 
         let confs: Vec<&str> = contents.split("\n").collect();
-        if confs.len() != 2 {
-            eprintln!("Invalid configuration file");
-            return;
-        }else if confs.is_empty() {
+        if confs.is_empty() {
             eprintln!("Configuration file is empty");
             return;
         }
@@ -89,27 +86,47 @@ fn main() {
     // Trim whitespace from the input
     let video_link = video_link.trim();
 
-    // Execute yt-dlp with the user-provided link
-    let output = Command::new("yt-dlp")
-        .arg("-k") // Keep video files
-        .arg("-P")
-        .arg(downloads_folder_path) // Output directory
-        .arg("-o")
-        .arg("%(title)s_%(vcodec)s_%(dynamic_range)s_%(format)s_%(resolution)s.%(ext)s") // Output template
-        .arg("--cookies-from-browser")
-        .arg(browser_for_cookies.trim()) // Use cookies from the Chromium browser
-        .arg(video_link) // URL to download
-        .output() // Execute the command
-        .expect("Failed to execute yt-dlp");
+    println!("Do you want to download the video or audio?");
+    println!("1. Video");
+    println!("2. Audio");
+    println!("Enter a choice according to your preference: ");
+    io::stdout().flush().expect("Failed to flush stdout");
 
-    // Handle the command output
-    if output.status.success() {
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        println!("Output:\n{}", stdout);
+    let mut choice = String::new();
+    io::stdin().read_line(&mut choice).expect("Failed to read line");
+
+    let choice = choice.trim();
+
+    print!("{choice}");
+
+    if choice == "Video" || choice == "video" || choice == "1" {
+        let output = video_and_audio(video_link, &downloads_folder_path, &browser_for_cookies);
+        
+        // Handle the command output
+        if output.status.success() {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            println!("Output:\n{}", stdout);
+        } else {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            eprintln!("Error:\n{}", stderr);
+        }
+    } else if choice == "Audio" || choice == "audio" || choice == "2" {
+        let output = only_audio(video_link, &downloads_folder_path, &browser_for_cookies);
+
+        // Handle the command output
+        if output.status.success() {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            println!("Output:\n{}", stdout);
+        } else {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            eprintln!("Error:\n{}", stderr);
+        } 
     } else {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        eprintln!("Error:\n{}", stderr);
+        eprintln!("Invalid choice");
+        return;
     }
+
+    // Execute yt-dlp with the user-provided link
 }
 
 pub fn write_to_file(browser: &str, downloads: &str) -> std::io::Result<()> {
@@ -127,4 +144,38 @@ pub fn write_to_file(browser: &str, downloads: &str) -> std::io::Result<()> {
     writeln!(file, "{}", contents)?;
     print!("File created successfully");
     Ok(())
+}
+
+pub fn video_and_audio(link: &str, downloads_folder_path: &str, browser_for_cookies: &str) -> Output {
+    let output = Command::new("yt-dlp")
+        //.arg("-k") // Keep video files
+        .arg("-P")
+        .arg(downloads_folder_path) // Output directory
+        .arg("-o")
+        .arg("%(title)s_%(vcodec)s_%(dynamic_range)s_%(format)s_%(resolution)s.%(ext)s") // Output template
+        .arg("--cookies-from-browser")
+        .arg(browser_for_cookies.trim()) // Use cookies from the browser
+        .arg(link) // URL to download
+        .output() // Execute the command
+        .expect("Failed to execute yt-dlp");
+
+    return output;
+}
+
+pub fn only_audio(link: &str, downloads_folder_path: &str, browser_for_cookies: &str) -> Output {
+    let output = Command::new("yt-dlp")
+        .arg("-x") // Extract audio
+        .arg("--audio-format")
+        .arg("mp3") // Audio format
+        .arg("-P")
+        .arg(downloads_folder_path) // Output directory
+        .arg("-o")
+        .arg("%(title)s_%(acodec)s_%(format)s.%(ext)s") // Output template
+        .arg("--cookies-from-browser")
+        .arg(browser_for_cookies.trim()) // Use cookies from the browser
+        .arg(link) // URL to download
+        .output() // Execute the command
+        .expect("Failed to execute yt-dlp");
+
+    return output;
 }
