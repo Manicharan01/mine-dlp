@@ -39,6 +39,13 @@ fn main() {
         let contents = std::fs::read_to_string(&path).expect("Error reading file");
 
         let confs: Vec<&str> = contents.split("\n").collect();
+        if confs.len() != 2 {
+            eprintln!("Invalid configuration file");
+            return;
+        }else if confs.is_empty() {
+            eprintln!("Configuration file is empty");
+            return;
+        }
 
         for conf in confs {
             let key_val: Vec<&str> = conf.split("=").collect();
@@ -46,6 +53,24 @@ fn main() {
                 downloads_folder_path = key_val[1].to_string();
             } else if key_val[0] == "browser" {
                 browser_for_cookies = key_val[1].to_string();
+            }
+        }
+        if downloads_folder_path.is_empty() || browser_for_cookies.is_empty() {
+            print!("Enter the folder path where the downloaded files should be stored: ");
+            io::stdout().flush().expect("Failed to flush stdout");
+            io::stdin().read_line(&mut downloads_folder_path).expect("Failed to read line");
+
+            print!("Enter the name of the browser, in which your YouTube is logged in : ");
+            io::stdout().flush().expect("Failed to flush stdout");
+            io::stdin().read_line(&mut browser_for_cookies).expect("Failed to read line");
+
+            let downloads_folder = format!("downloads={}", downloads_folder_path.trim());
+            let cookie_browser: String = format!("browser={}", browser_for_cookies.trim());
+
+            let file = write_to_file(&cookie_browser, &downloads_folder);
+            match file {
+                Ok(_) => println!("File created successfully"),
+                Err(e) => eprintln!("Error: {}", e),
             }
         }
     }

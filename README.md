@@ -1,6 +1,6 @@
-## Description
+# Description
 
-This rust package is a wrapper around [yt-dlp](https://github.com/yt-dlp/yt-dlp) to Download audio/video files to your desired folder with no hassel.
+This rust package is a wrapper around [yt-dlp](https://github.com/yt-dlp/yt-dlp) to Download audio/video files to your desired folder with no hassle.
 
 ## Installation
 
@@ -18,7 +18,7 @@ You can execute it by running `mine-dlp`, but you should have config file in you
 browser="name of the browser in which youtube is logged in, quotes are not needed"(yt-dlp cannot get audio/video without this option)
 downloads=/path/to/save/the/audio or video/
 ```
-If you do not want to go through hassel, you can just execute it and give details for the first when it asked.
+If you do not want to go through hassle, you can just execute it and give details for the first when it asked.
 
 ## Issues
 
