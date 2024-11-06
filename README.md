@@ -10,6 +10,7 @@ cargo install mine-dlp
 ```
 you can install this package in any Operating System, with cargo installed. You can refer to [this](https://www.rust-lang.org/tools/install) website to install cargo. And you should install yt-dlp too, because this package is a wrapper around [yt-dlp](https://github.com/yt-dlp/yt-dlp).
 You can refer to above referred link to install [yt-dlp](https://github.com/yt-dlp/yt-dlp).
+You should also install `gcc` in linux and in windows you should in `Visual Studio 2019 or higher`, for Rust compiler to work.
 
 ## Execution
 

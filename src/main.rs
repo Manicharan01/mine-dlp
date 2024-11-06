@@ -56,6 +56,7 @@ fn main() {
             }
         }
         if downloads_folder_path.is_empty() || browser_for_cookies.is_empty() {
+            println!("The parameters in the configuration file are empty");
             print!("Enter the folder path where the downloaded files should be stored: ");
             io::stdout().flush().expect("Failed to flush stdout");
             io::stdin().read_line(&mut downloads_folder_path).expect("Failed to read line");
