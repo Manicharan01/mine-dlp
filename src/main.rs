@@ -1,8 +1,8 @@
-use std::fs::File;
-use std::io::{self, Write};
-use std::process::{Command, Output};
-use std::path::Path;
 use dirs;
+use std::fs::File;
+use std::io::{self, BufRead, BufReader, Write};
+use std::path::Path;
+use std::process::Command;
 
 fn main() {
     let home_dir = match dirs::home_dir() {
@@ -17,14 +17,18 @@ fn main() {
 
     let mut downloads_folder_path: String = String::new();
     let mut browser_for_cookies: String = String::new();
-    if !Path::new(&file_path).exists(){
+    if !Path::new(&file_path).exists() {
         print!("Enter the folder path where the downloaded files should be stored: ");
         io::stdout().flush().expect("Failed to flush stdout");
-        io::stdin().read_line(&mut downloads_folder_path).expect("Failed to read line");
+        io::stdin()
+            .read_line(&mut downloads_folder_path)
+            .expect("Failed to read line");
 
         print!("Enter the name of the browser, in which your YouTube is logged in : ");
         io::stdout().flush().expect("Failed to flush stdout");
-        io::stdin().read_line(&mut browser_for_cookies).expect("Failed to read line");
+        io::stdin()
+            .read_line(&mut browser_for_cookies)
+            .expect("Failed to read line");
 
         let downloads_folder = format!("downloads={}", downloads_folder_path.trim());
         let cookie_browser: String = format!("browser={}", browser_for_cookies.trim());
@@ -34,7 +38,7 @@ fn main() {
             Ok(_) => println!("File created successfully"),
             Err(e) => eprintln!("Error: {}", e),
         }
-    }else {
+    } else {
         let path = Path::new(&file_path);
         let contents = std::fs::read_to_string(&path).expect("Error reading file");
 
@@ -56,11 +60,15 @@ fn main() {
             println!("The parameters in the configuration file are empty");
             print!("Enter the folder path where the downloaded files should be stored: ");
             io::stdout().flush().expect("Failed to flush stdout");
-            io::stdin().read_line(&mut downloads_folder_path).expect("Failed to read line");
+            io::stdin()
+                .read_line(&mut downloads_folder_path)
+                .expect("Failed to read line");
 
             print!("Enter the name of the browser, in which your YouTube is logged in : ");
             io::stdout().flush().expect("Failed to flush stdout");
-            io::stdin().read_line(&mut browser_for_cookies).expect("Failed to read line");
+            io::stdin()
+                .read_line(&mut browser_for_cookies)
+                .expect("Failed to read line");
 
             let downloads_folder = format!("downloads={}", downloads_folder_path.trim());
             let cookie_browser: String = format!("browser={}", browser_for_cookies.trim());
@@ -93,40 +101,22 @@ fn main() {
     io::stdout().flush().expect("Failed to flush stdout");
 
     let mut choice = String::new();
-    io::stdin().read_line(&mut choice).expect("Failed to read line");
+    io::stdin()
+        .read_line(&mut choice)
+        .expect("Failed to read line");
 
     let choice = choice.trim();
 
     print!("{choice}");
 
     if choice == "Video" || choice == "video" || choice == "1" {
-        let output = video_and_audio(video_link, &downloads_folder_path, &browser_for_cookies);
-        
-        // Handle the command output
-        if output.status.success() {
-            let stdout = String::from_utf8_lossy(&output.stdout);
-            println!("Output:\n{}", stdout);
-        } else {
-            let stderr = String::from_utf8_lossy(&output.stderr);
-            eprintln!("Error:\n{}", stderr);
-        }
+        let _ = video_and_audio(video_link, &downloads_folder_path, &browser_for_cookies);
     } else if choice == "Audio" || choice == "audio" || choice == "2" {
-        let output = only_audio(video_link, &downloads_folder_path, &browser_for_cookies);
-
-        // Handle the command output
-        if output.status.success() {
-            let stdout = String::from_utf8_lossy(&output.stdout);
-            println!("Output:\n{}", stdout);
-        } else {
-            let stderr = String::from_utf8_lossy(&output.stderr);
-            eprintln!("Error:\n{}", stderr);
-        } 
+        let _output = only_audio(video_link, &downloads_folder_path, &browser_for_cookies);
     } else {
         eprintln!("Invalid choice");
         return;
     }
-
-    // Execute yt-dlp with the user-provided link
 }
 
 pub fn write_to_file(browser: &str, downloads: &str) -> std::io::Result<()> {
@@ -134,7 +124,10 @@ pub fn write_to_file(browser: &str, downloads: &str) -> std::io::Result<()> {
         Some(path) => path,
         None => {
             eprintln!("Failed to get home directory");
-            return Err(std::io::Error::new(std::io::ErrorKind::Other, "Failed to get home directory"));
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "Failed to get home directory",
+            ));
         }
     };
     let file_path = home_path.join(".mine-dlp");
@@ -146,8 +139,8 @@ pub fn write_to_file(browser: &str, downloads: &str) -> std::io::Result<()> {
     Ok(())
 }
 
-pub fn video_and_audio(link: &str, downloads_folder_path: &str, browser_for_cookies: &str) -> Output {
-    let output = Command::new("yt-dlp")
+pub fn video_and_audio(link: &str, downloads_folder_path: &str, browser_for_cookies: &str) {
+    let mut child = Command::new("yt-dlp")
         //.arg("-k") // Keep video files
         .arg("-P")
         .arg(downloads_folder_path) // Output directory
@@ -156,14 +149,27 @@ pub fn video_and_audio(link: &str, downloads_folder_path: &str, browser_for_cook
         .arg("--cookies-from-browser")
         .arg(browser_for_cookies.trim()) // Use cookies from the browser
         .arg(link) // URL to download
-        .output() // Execute the command
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
         .expect("Failed to execute yt-dlp");
 
-    return output;
+    let output = BufReader::new(child.stdout.take().expect("Failed to get stdout"));
+    for line in output.lines() {
+        match line {
+            Ok(line) => println!("{}", line),
+            Err(e) => eprintln!("Error: {}", e),
+        }
+    }
+
+    let status = child.wait().expect("Failed to wait for child");
+    if !status.success() {
+        eprintln!("Error: yt-dlp exited with status {}", status);
+    }
 }
 
-pub fn only_audio(link: &str, downloads_folder_path: &str, browser_for_cookies: &str) -> Output {
-    let output = Command::new("yt-dlp")
+pub fn only_audio(link: &str, downloads_folder_path: &str, browser_for_cookies: &str) {
+    let mut child = Command::new("yt-dlp")
         .arg("-x") // Extract audio
         .arg("--audio-format")
         .arg("mp3") // Audio format
@@ -174,8 +180,22 @@ pub fn only_audio(link: &str, downloads_folder_path: &str, browser_for_cookies: 
         .arg("--cookies-from-browser")
         .arg(browser_for_cookies.trim()) // Use cookies from the browser
         .arg(link) // URL to download
-        .output() // Execute the command
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
         .expect("Failed to execute yt-dlp");
 
-    return output;
+    let output = BufReader::new(child.stdout.take().expect("Failed to get stdout"));
+    for line in output.lines() {
+        match line {
+            Ok(line) => println!("{}", line),
+            Err(e) => eprintln!("Error: {}", e),
+        }
+    }
+
+    let status = child.wait().expect("Failed to wait for child");
+    if !status.success() {
+        eprintln!("Error: yt-dlp exited with status {}", status);
+    }
 }
+
