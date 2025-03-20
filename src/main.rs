@@ -107,8 +107,6 @@ fn main() {
 
     let choice = choice.trim();
 
-    print!("{choice}");
-
     if choice == "Video" || choice == "video" || choice == "1" {
         let _ = video_and_audio(video_link, &downloads_folder_path, &browser_for_cookies);
     } else if choice == "Audio" || choice == "audio" || choice == "2" {
@@ -198,4 +196,3 @@ pub fn only_audio(link: &str, downloads_folder_path: &str, browser_for_cookies: 
         eprintln!("Error: yt-dlp exited with status {}", status);
     }
 }
-
