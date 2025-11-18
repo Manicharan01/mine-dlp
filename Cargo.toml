@@ -6,6 +6,8 @@ edition = "2021"
 description = "A yt-dlp wrapper for downloading YouTube videos from command line"
 license = "MIT"
 repository = "https://github.com/Manicharan01/mine-dlp"
+keywords = ["youtube", "downloader", "yt-dlp", "cli"]
+categories = ["command-line-utilities", "multimedia::video"]
 
 [lib]
 name = "mine_dlp"
