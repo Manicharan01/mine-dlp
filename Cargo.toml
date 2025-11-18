@@ -7,6 +7,10 @@ description = "A yt-dlp wrapper for downloading YouTube videos from command line
 license = "MIT"
 repository = "https://github.com/Manicharan01/mine-dlp"
 
+[lib]
+name = "mine_dlp"
+path = "src/lib.rs"
+
 [[bin]]
 name = "mine-dlp"
 path = "src/main.rs"
