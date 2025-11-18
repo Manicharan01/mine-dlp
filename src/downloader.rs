@@ -33,6 +33,13 @@ fn run_yt_dlp_command(args: &[&str]) -> io::Result<()> {
     Ok(())
 }
 
+/// Downloads a video from the given link.
+///
+/// # Arguments
+///
+/// * `link` - The URL of the video to download.
+/// * `downloads_folder_path` - The path to the folder where the video will be saved.
+/// * `browser_for_cookies` - The name of the browser to use for cookies.
 pub fn download_video(
     link: &str,
     downloads_folder_path: &str,
@@ -50,6 +57,13 @@ pub fn download_video(
     ])
 }
 
+/// Downloads the audio from the given link.
+///
+/// # Arguments
+///
+/// * `link` - The URL of the video to download the audio from.
+/// * `downloads_folder_path` - The path to the folder where the audio will be saved.
+/// * `browser_for_cookies` - The name of the browser to use for cookies.
 pub fn download_audio(
     link: &str,
     downloads_folder_path: &str,
