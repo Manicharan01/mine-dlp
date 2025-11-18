@@ -3,13 +3,17 @@ use std::fs::File;
 use std::io::{self, Write};
 use std::path::PathBuf;
 
+/// Holds the configuration for the application.
 #[derive(Debug, Clone)]
 pub struct Config {
+    /// The path to the folder where downloads will be saved.
     pub downloads_folder_path: String,
+    /// The name of the browser to use for cookies.
     pub browser_for_cookies: String,
 }
 
 impl Config {
+    /// Creates a new, empty `Config` instance.
     pub fn new() -> Self {
         Config {
             downloads_folder_path: String::new(),
@@ -28,6 +32,10 @@ fn get_config_file_path() -> Result<PathBuf, io::Error> {
     }
 }
 
+/// Loads the configuration from the `.mine-dlp` file in the home directory.
+///
+/// If the file does not exist, it prompts the user for the configuration values
+/// and saves them to the file.
 pub fn load_config() -> Result<Config, io::Error> {
     let file_path = get_config_file_path()?;
     if !file_path.exists() {
@@ -77,6 +85,7 @@ fn prompt_for_config_values() -> Result<Config, io::Error> {
 }
 
 
+/// Prompts the user for configuration values and saves them to the `.mine-dlp` file.
 pub fn prompt_and_save_config() -> Result<Config, io::Error> {
     let config = prompt_for_config_values()?;
     write_config_to_file(&config)?;
